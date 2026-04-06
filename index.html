@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Asesmen SDN 1 Gondang</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@900&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-blue: #0284c7;
+            --secondary-blue: #93c5fd;
+            --accent-green: #10b981;
+            --bg-gray: #f3f4f6;
+        }
+
+        body {
+            background-color: var(--bg-gray);
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 450px;
+            height: 100vh;
+            max-height: 850px;
+            background-color: #ffffff;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.1);
+            position: relative;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        @media (min-width: 640px) {
+            .app-container {
+                height: 90vh;
+                border-radius: 24px;
+            }
+        }
+
+        .font-sahabat {
+            font-family: 'Montserrat', sans-serif;
+            letter-spacing: 0.1em;
+            background: linear-gradient(to bottom, #1e293b, #334155);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(1px 1px 0px rgba(255,255,255,0.3));
+        }
+
+        .btn-masuk {
+            background-color: var(--accent-green);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .btn-masuk:hover {
+            background-color: #059669;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-nav {
+            background-color: var(--primary-blue);
+            border-radius: 12px;
+            color: white;
+            padding: 12px 24px;
+            font-weight: 600;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .option-item {
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 2px solid #e5e7eb;
+            background-color: #f9fafb;
+        }
+
+        .selected-option {
+            background-color: #dbeafe !important;
+            border-color: #3b82f6 !important;
+            transform: translateX(8px);
+        }
+
+        #loading-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.9);
+            backdrop-filter: blur(4px);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            color: white;
+        }
+
+        .input-field {
+            background-color: #ffffff;
+            color: #1e293b;
+            text-align: center;
+            font-weight: bold;
+            padding: 14px;
+            border-radius: 12px;
+            width: 100%;
+            border: 2px solid #cbd5e1;
+            outline: none;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 200;
+            padding: 20px;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-container p-6" id="app">
+    <div id="loading-overlay">
+        <div class="animate-spin rounded-full h-14 w-14 border-4 border-blue-400 border-t-transparent mb-4"></div>
+        <p class="font-bold text-lg">Memproses Data...</p>
+    </div>
+
+    <!-- Login Screen -->
+    <div id="login-screen" class="flex flex-col items-center justify-center h-full">
+        <div class="mb-6">
+            <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiUAgnz3M-C0b4aP4NCccOVpRTBjimetBgZhyphenhyphenkGcMIcG3YY7RhacnjOZFFonylLQGbQ0LQHR7n4cOk7XN8mDb9YmRrXgJi5q7yZCEEKpQ4CYuB9WaZLCNw35_qVPvcRTizOMvZXsYVqmAOSfxDv9bUmpB9z_-2G3ecR_C1CONgsQ5-5U5NA2B9rpU4zfJnZ/w200-h200/sdn%20gng%201.png" alt="Logo SDN 1 Gondang" class="w-28 h-28 object-contain">
+        </div>
+
+        <div class="text-center mb-8">
+            <h1 class="text-2xl font-bold text-gray-900 leading-tight uppercase">Selamat Datang</h1>
+            <h2 class="text-5xl font-black mb-2 font-sahabat uppercase">Sahabat</h2>
+            <p class="text-[10px] text-gray-600 font-medium tracking-widest uppercase text-center">
+                Sistem Asesmen Hasil Amanah Berprestasi Akurat & Terpercaya
+            </p>
+        </div>
+
+        <div class="w-full space-y-4">
+            <input type="text" id="name" placeholder="NAMA LENGKAP" class="input-field uppercase">
+            <input type="number" id="absen" placeholder="NOMOR ABSEN" class="input-field">
+            <button onclick="startExam()" class="w-full py-4 mt-2 rounded-xl btn-masuk text-white font-bold text-lg shadow-lg uppercase">
+                Mulai Ujian
+            </button>
+        </div>
+    </div>
+
+    <!-- Exam Screen -->
+    <div id="exam-screen" class="hidden flex flex-col h-full">
+        <div class="w-full bg-gray-200 rounded-full h-2 mb-6">
+            <div id="progress-bar" class="bg-blue-600 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+        </div>
+
+        <div class="flex justify-between items-center mb-6">
+            <span class="bg-blue-600 text-white px-3 py-1 rounded-full text-[10px] font-bold uppercase">
+                Soal <span id="current-number">1</span> / <span id="total-questions">0</span>
+            </span>
+            <span id="timer" class="text-gray-700 font-mono font-bold text-sm">00:00</span>
+        </div>
+        
+        <div class="flex-grow">
+            <div class="bg-blue-50 rounded-2xl p-5 mb-6 border-l-4 border-blue-600">
+                <p id="question-text" class="text-base font-bold text-gray-800 leading-relaxed">Memuat...</p>
+            </div>
+            <div id="options-container" class="space-y-3"></div>
+        </div>
+
+        <div class="flex justify-between items-center mt-6 pb-4 gap-3">
+            <button onclick="prevQuestion()" id="prev-btn" class="btn-nav flex-1 opacity-50" disabled>KEMBALI</button>
+            <button onclick="handleNext()" class="btn-nav flex-1" id="next-btn">LANJUT</button>
+        </div>
+    </div>
+</div>
+
+<div id="confirm-modal" class="modal-overlay">
+    <div class="modal-content">
+        <h3 class="text-xl font-bold mb-2">Selesai?</h3>
+        <p class="text-sm text-gray-600 mb-6">Pastikan semua jawaban sudah terisi.</p>
+        <div class="flex gap-3">
+            <button onclick="hideConfirm()" class="flex-1 py-3 border border-gray-300 rounded-xl font-bold text-gray-500">BATAL</button>
+            <button onclick="finishExam()" class="flex-1 py-3 bg-green-500 text-white rounded-xl font-bold">KIRIM</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbz1sq6Ks2rC3lIdcA3i9TRLPebUdny0st73zmcZXI7HVVSZ63hxJWsz3_rVOH3L0gdO/exec'; 
+
+const questions = [
+  // KELOMPOK 1: OPERASI HITUNG (UANG & PAKET)
+  { 
+    id: 1, 
+    text: "Andi memiliki uang Rp60.000,00. Ia ingin membeli susu kotak yang dijual seharga Rp15.000,00 per paket. Jika dalam satu paket berisi 4 kotak susu, maka total kotak susu yang didapat Andi adalah ... kotak.", 
+    options: [{id:'A', text:'4'}, {id:'B', text:'12'}, {id:'C', text:'16'}, {id:'D', text:'20'}], 
+    correct: 'C' 
+  },
+  { 
+    id: 2, 
+    text: "Sinta membawa uang Rp40.000,00 ke toko alat tulis. Harga satu kotak pensil adalah Rp8.000,00. Jika di dalam setiap kotak terdapat 12 batang pensil, maka maksimal banyaknya pensil yang didapat Sinta adalah ... batang.", 
+    options: [{id:'A', text:'5'}, {id:'B', text:'40'}, {id:'C', text:'60'}, {id:'D', text:'96'}], 
+    correct: 'C' 
+  },
+  { 
+    id: 3, 
+    text: "Ibu ingin membeli telur untuk membuat kue dengan modal Rp100.000,00. Harga telur per kemasan adalah Rp25.000,00. Jika satu kemasan berisi 10 butir telur, maka total telur yang bisa dibeli Ibu adalah ... butir.", 
+    options: [{id:'A', text:'4'}, {id:'B', text:'25'}, {id:'C', text:'40'}, {id:'D', text:'50'}], 
+    correct: 'C' 
+  },
+  { 
+    id: 4, 
+    text: "Budi mempunyai uang Rp72.000,00. Uang tersebut akan digunakan untuk membeli buku tulis seharga Rp12.000,00 per pak. Jika satu pak berisi 6 buku, maka maksimal banyaknya buku yang didapat Budi adalah ... buku.", 
+    options: [{id:'A', text:'6'}, {id:'B', text:'36'}, {id:'C', text:'42'}, {id:'D', text:'72'}], 
+    correct: 'B' 
+  },
+  { 
+    id: 5, 
+    text: "Seorang guru memiliki anggaran Rp150.000,00 untuk membeli hadiah cokelat bagi muridnya. Harga satu kotak cokelat adalah Rp30.000,00. Jika dalam satu kotak berisi 8 batang cokelat, maka total cokelat yang didapat guru tersebut adalah ... batang.", 
+    options: [{id:'A', text:'5'}, {id:'B', text:'30'}, {id:'C', text:'40'}, {id:'D', text:'48'}], 
+    correct: 'C' 
+  },
+
+  // KELOMPOK 2: URUTAN BILANGAN
+  { 
+    id: 6, 
+    text: "Terdapat bilangan-bilangan sebagai berikut: $80\\% \\;; \\; 0,78 \\;; \\; \\frac{4}{5} \\;; \\; \\frac{3}{4}$. Jika bilangan tersebut diurutkan dari yang terkecil hingga terbesar, maka urutannya adalah ....", 
+    options: [
+      {id:'A', text:'$\\frac{3}{4} \\;; \\; 0,78 \\;; \\; 80\\% \\;; \\; \\frac{4}{5}$'}, 
+      {id:'B', text:'$0,78 \\;; \\; \\frac{3}{4} \\;; \\; 80\\% \\;; \\; \\frac{4}{5}$'}, 
+      {id:'C', text:'$\\frac{3}{4} \\;; \\; 0,78 \\;; \\; \\frac{4}{5} \\;; \\; 80\\%$'}, 
+      {id:'D', text:'$80\\% \\;; \\; \\frac{4}{5} \\;; \\; 0,78 \\;; \\; \\frac{3}{4}$'}
+    ], 
+    correct: 'A' 
+  },
+  { 
+    id: 7, 
+    text: "Diberikan empat bilangan: $0,62 \\;; \\; 65\\% \\;; \\; \\frac{5}{8} \\;; \\; \\frac{3}{5}$. Urutan bilangan tersebut dari yang terkecil adalah ....", 
+    options: [
+      {id:'A', text:'$\\frac{3}{5} \\;; \\; \\frac{5}{8} \\;; \\; 0,62 \\;; \\; 65\\%$'}, 
+      {id:'B', text:'$\\frac{3}{5} \\;; \\; 0,62 \\;; \\; \\frac{5}{8} \\;; \\; 65\\%$'}, 
+      {id:'C', text:'$0,62 \\;; \\; \\frac{3}{5} \\;; \\; 65\\% \\;; \\; \\frac{5}{8}$'}, 
+      {id:'D', text:'$65\\% \\;; \\; \\frac{5}{8} \\;; \\; 0,62 \\;; \\; \\frac{3}{5}$'}
+    ], 
+    correct: 'B' 
+  },
+  { 
+    id: 8, 
+    text: "Urutkan bilangan berikut dari nilai terkecil ke terbesar: $1,25 \\;; \\; 120\\% \\;; \\; \\frac{9}{8} \\;; \\; 1 \\frac{1}{5}$. Urutan yang benar adalah ....", 
+    options: [
+      {id:'A', text:'$1 \\frac{1}{5} \\;; \\; \\frac{9}{8} \\;; \\; 120\\% \\;; \\; 1,25$'}, 
+      {id:'B', text:'$\\frac{9}{8} \\;; \\; 1 \\frac{1}{5} \\;; \\; 120\\% \\;; \\; 1,25$'}, 
+      {id:'C', text:'$\\frac{9}{8} \\;; \\; 120\\% \\;; \\; 1 \\frac{1}{5} \\;; \\; 1,25$'}, 
+      {id:'D', text:'$120\\% \\;; \\; 1 \\frac{1}{5} \\;; \\; 1,25 \\;; \\; \\frac{9}{8}$'}
+    ], 
+    correct: 'C' 
+  },
+  { 
+    id: 9, 
+    text: "Terdapat bilangan-bilangan: $\\frac{2}{3} \\;; \\; 0,6 \\;; \\; 62\\% \\;; \\; \\frac{13}{20}$. Jika diurutkan dari yang terkecil, maka urutannya adalah ....", 
+    options: [
+      {id:'A', text:'$0,6 \\;; \\; 62\\% \\;; \\; \\frac{13}{20} \\;; \\; \\frac{2}{3}$'}, 
+      {id:'B', text:'$0,6 \\;; \\; \\frac{13}{20} \\;; \\; 62\\% \\;; \\; \\frac{2}{3}$'}, 
+      {id:'C', text:'$62\\% \\;; \\; 0,6 \\;; \\; \\frac{2}{3} \\;; \\; \\frac{13}{20}$'}, 
+      {id:'D', text:'$\\frac{2}{3} \\;; \\; \\frac{13}{20} \\;; \\; 62\\% \\;; \\; 0,6$'}
+    ], 
+    correct: 'A' 
+  },
+  { 
+    id: 10, 
+    text: "Diketahui bilangan: $0,375 \\;; \\; 35\\% \\;; \\; \\frac{3}{8} \\;; \\; \\frac{2}{5}$. Urutan bilangan dari yang terkecil adalah ....", 
+    options: [
+      {id:'A', text:'$35\\% \\;; \\; \\frac{3}{8} \\;; \\; 0,375 \\;; \\; \\frac{2}{5}$'}, 
+      {id:'B', text:'$35\\% \\;; \\; 0,375 \\;; \\; \\frac{3}{8} \\;; \\; \\frac{2}{5}$'}, 
+      {id:'C', text:'$35\\% \\;; \\; \\frac{2}{5} \\;; \\; 0,375 \\;; \\; \\frac{3}{8}$'}, 
+      {id:'D', text:'$\\frac{2}{5} \\;; \\; 0,375 \\;; \\; \\frac{3}{8} \\;; \\; 35\\%$'}
+    ], 
+    correct: 'B' 
+  },
+
+  // KELOMPOK 3: GEOMETRI KUBUS
+  { 
+    id: 11, 
+    text: "Sebuah kubus dengan panjang rusuk 5 cm dicat seluruh permukaannya dengan warna biru. Kubus tersebut kemudian dipotong-potong menjadi kubus kecil dengan panjang rusuk 1 cm. Banyaknya kubus kecil yang memiliki tepat dua sisi berwarna biru adalah ....", 
+    options: [{id:'A', text:'24'}, {id:'B', text:'36'}, {id:'C', text:'48'}, {id:'D', text:'60'}], 
+    correct: 'B' 
+  },
+  { 
+    id: 12, 
+    text: "Sebuah kubus kayu memiliki panjang rusuk 3 cm. Seluruh permukaan luar kubus dicat hijau, lalu dipotong menjadi kubus-kubus satuan berukuran 1 cm. Banyak kubus kecil yang hanya memiliki satu sisi berwarna hijau adalah ....", 
+    options: [{id:'A', text:'4'}, {id:'B', text:'6'}, {id:'C', text:'8'}, {id:'D', text:'12'}], 
+    correct: 'B' 
+  },
+  { 
+    id: 13, 
+    text: "Sebuah kubus besar dengan panjang rusuk 6 cm dicat kuning pada seluruh permukaannya. Jika kubus itu dipotong-potong menjadi kubus kecil dengan rusuk 1 cm, berapakah jumlah kubus kecil yang sama sekali tidak terkena cat (tidak ada sisi berwarna kuning)?", 
+    options: [{id:'A', text:'16'}, {id:'B', text:'32'}, {id:'C', text:'64'}, {id:'D', text:'125'}], 
+    correct: 'C' 
+  },
+  { 
+    id: 14, 
+    text: "Rudi memiliki kubus dengan panjang rusuk 4 cm yang seluruh permukaannya dicat merah. Jika kubus tersebut dipotong menjadi kubus-kubus kecil berukuran 1 cm, banyak kubus kecil yang memiliki minimal tiga sisi berwarna merah adalah ....", 
+    options: [{id:'A', text:'4'}, {id:'B', text:'8'}, {id:'C', text:'12'}, {id:'D', text:'16'}], 
+    correct: 'B' 
+  },
+  { 
+    id: 15, 
+    text: "Sebuah kubus dengan panjang rusuk 5 cm dicat seluruh permukaannya. Setelah dipotong-potong menjadi kubus kecil berukuran 1 cm, selisih antara jumlah kubus kecil yang memiliki tepat dua sisi berwarna dengan yang memiliki tepat tiga sisi berwarna adalah ....", 
+    options: [{id:'A', text:'24'}, {id:'B', text:'28'}, {id:'C', text:'32'}, {id:'D', text:'36'}], 
+    correct: 'B' 
+  },
+
+  // KELOMPOK 4: RATA-RATA (STATISTIKA)
+  { 
+    id: 16, 
+    text: "Berikut adalah data berat badan (dalam kg) dari 8 siswa kelas 6 SD: 32, 35, 30, 38, 40, 35, 33, 37. Rata-rata berat badan siswa tersebut adalah ....", 
+    options: [{id:'A', text:'34 kg'}, {id:'B', text:'35 kg'}, {id:'C', text:'36 kg'}, {id:'D', text:'38 kg'}], 
+    correct: 'B' 
+  },
+  { 
+    id: 17, 
+    text: "Nilai ulangan matematika Budi dalam satu semester adalah: 7, 8, 9, 6, 8, 10, 8. Rata-rata nilai ulangan Budi adalah ....", 
+    options: [{id:'A', text:'7'}, {id:'B', text:'7,5'}, {id:'C', text:'8'}, {id:'D', text:'8,5'}], 
+    correct: 'C' 
+  },
+  { 
+    id: 18, 
+    text: "Hasil penjualan beras di sebuah toko (dalam kg) selama satu minggu adalah: 25, 30, 45, 20, 50, 40, 31. Rata-rata penjualan beras setiap harinya adalah ....", 
+    options: [{id:'A', text:'32 kg'}, {id:'B', text:'33 kg'}, {id:'C', text:'34 kg'}, {id:'D', text:'35 kg'}], 
+    correct: 'D' 
+  },
+  { 
+    id: 19, 
+    text: "Data tinggi badan (dalam cm) lima orang pemain basket adalah: 175, 180, 182, 178, 185. Rata-rata tinggi badan pemain tersebut adalah ....", 
+    options: [{id:'A', text:'178 cm'}, {id:'B', text:'179 cm'}, {id:'C', text:'180 cm'}, {id:'D', text:'181 cm'}], 
+    correct: 'C' 
+  },
+  { 
+    id: 20, 
+    text: "Banyaknya buku cerita yang dibaca oleh 6 siswa dalam sebulan adalah: 12, 15, 10, 18, 14, 11. Rata-rata banyak buku yang dibaca setiap siswa adalah ....", 
+    options: [{id:'A', text:'13 buku'}, {id:'B', text:'13,3 buku'}, {id:'C', text:'14 buku'}, {id:'D', text:'14,5 buku'}], 
+    correct: 'B' 
+  },
+
+  // KELOMPOK 5: JARAK, WAKTU, KECEPATAN
+  { 
+    id: 21, 
+    text: "Budi berangkat ke rumah nenek menggunakan sepeda motor pada pukul 08.10 dengan kecepatan rata-rata 40 km/jam. Jika jarak rumah Budi ke rumah nenek adalah 10 km, maka Budi akan tiba pada pukul ....", 
+    options: [{id:'A', text:'08.20'}, {id:'B', text:'08.25'}, {id:'C', text:'08.35'}, {id:'D', text:'08.45'}], 
+    correct: 'B' 
+  },
+  { 
+    id: 22, 
+    text: "Sinta ingin pergi ke pasar yang berjarak 2 km dari rumahnya. Ia berangkat pukul 09.20 dengan berjalan kaki berkecepatan 4 km/jam. Sinta akan sampai di pasar pada pukul ....", 
+    options: [{id:'A', text:'09.30'}, {id:'B', text:'09.40'}, {id:'C', text:'09.50'}, {id:'D', text:'10.00'}], 
+    correct: 'C' 
+  },
+  { 
+    id: 23, 
+    text: "Ayah mengendarai mobil menuju kantor dengan kecepatan 60 km/jam. Ayah berangkat pukul 06.45 dan menempuh jarak 15 km. Ayah akan tiba di kantor pada pukul ....", 
+    options: [{id:'A', text:'06.55'}, {id:'B', text:'07.00'}, {id:'C', text:'07.10'}, {id:'D', text:'07.15'}], 
+    correct: 'B' 
+  },
+  { 
+    id: 24, 
+    text: "Rudi berangkat sekolah pukul 06.20 menggunakan sepeda dengan kecepatan 12 km/jam. Jika jarak sekolah dari rumah Rudi adalah 3 km, maka Rudi tiba di sekolah pada pukul ....", 
+    options: [{id:'A', text:'06.35'}, {id:'B', text:'06.40'}, {id:'C', text:'06.45'}, {id:'D', text:'06.50'}], 
+    correct: 'A' 
+  },
+  { 
+    id: 25, 
+    text: "Sebuah bus melaju dengan kecepatan 80 km/jam dari terminal A pukul 13.15. Jika jarak yang ditempuh bus tersebut adalah 20 km, maka bus tersebut sampai di tujuan pada pukul ....", 
+    options: [{id:'A', text:'13.30'}, {id:'B', text:'13.40'}, {id:'C', text:'13.45'}, {id:'D', text:'13.55'}], 
+    correct: 'A' 
+  },
+
+  // KELOMPOK 6: KOMBINATORIKA (CACAH)
+  { 
+    id: 26, 
+    text: "Terdapat 10 kartu bilangan asli pertama (1 sampai 10). Banyaknya cara mengambil 2 kartu sekaligus sehingga jumlah kedua bilangan tersebut bernilai genap adalah ... cara.", 
+    options: [{id:'A', text:'20'}, {id:'B', text:'25'}, {id:'C', text:'45'}, {id:'D', text:'90'}], 
+    correct: 'A' 
+  },
+  { 
+    id: 27, 
+    text: "Terdapat kartu bertuliskan bilangan prima antara 10 hingga 30. Jika diambil dua kartu secara acak, banyaknya cara agar jumlah kedua bilangan tersebut bernilai genap adalah ... cara.", 
+    options: [{id:'A', text:'6'}, {id:'B', text:'10'}, {id:'C', text:'15'}, {id:'D', text:'21'}], 
+    correct: 'C' 
+  },
+  { 
+    id: 28, 
+    text: "Diberikan 6 kartu bilangan ganjil pertama dan 4 kartu bilangan genap pertama. Banyaknya cara mengambil satu kartu ganjil dan satu kartu genap sehingga hasil kali kedua bilangan tersebut bernilai genap adalah ... cara.", 
+    options: [{id:'A', text:'10'}, {id:'B', text:'24'}, {id:'C', text:'40'}, {id:'D', text:'45'}], 
+    correct: 'B' 
+  },
+  { 
+    id: 29, 
+    text: "Dalam sebuah kotak terdapat kartu bernilai ganjil dari 1 sampai 15. Banyaknya cara mengambil 2 kartu secara acak sehingga jumlah kedua bilangan tersebut bernilai ganjil adalah ... cara.", 
+    options: [{id:'A', text:'0'}, {id:'B', text:'8'}, {id:'C', text:'15'}, {id:'D', text:'28'}], 
+    correct: 'A' 
+  },
+  { 
+    id: 30, 
+    text: "Terdapat 5 kartu bilangan prima pertama. Banyaknya cara mengambil 2 kartu sehingga hasil kali kedua bilangan tersebut bernilai genap adalah ... cara.", 
+    options: [{id:'A', text:'4'}, {id:'B', text:'5'}, {id:'C', text:'10'}, {id:'D', text:'20'}], 
+    correct: 'A' 
+  }
+];
+
+    let currentQuestionIndex = 0;
+    let userAnswers = {};
+    let userData = { name: '', absen: '' };
+    let startTime;
+    let timerInterval;
+
+    function startExam() {
+        userData.name = document.getElementById('name').value.trim();
+        userData.absen = document.getElementById('absen').value.trim();
+
+        if (!userData.name || !userData.absen) {
+            alert("Isi Nama dan Absen!");
+            return;
+        }
+
+        document.getElementById('login-screen').classList.add('hidden');
+        document.getElementById('exam-screen').classList.remove('hidden');
+        document.getElementById('total-questions').innerText = questions.length;
+        
+        startTime = new Date();
+        timerInterval = setInterval(updateTimer, 1000);
+        renderQuestion();
+    }
+
+    function updateTimer() {
+        const diff = Math.floor((new Date() - startTime) / 1000);
+        const m = Math.floor(diff / 60).toString().padStart(2, '0');
+        const s = (diff % 60).toString().padStart(2, '0');
+        document.getElementById('timer').innerText = `${m}:${s}`;
+    }
+
+    function renderQuestion() {
+        const q = questions[currentQuestionIndex];
+        document.getElementById('current-number').innerText = currentQuestionIndex + 1;
+        document.getElementById('question-text').innerText = q.text;
+        document.getElementById('progress-bar').style.width = `${((currentQuestionIndex + 1) / questions.length) * 100}%`;
+
+        const container = document.getElementById('options-container');
+        container.innerHTML = '';
+        q.options.forEach(opt => {
+            const isSelected = userAnswers[currentQuestionIndex] === opt.id;
+            const div = document.createElement('div');
+            div.className = `option-item p-4 rounded-xl font-medium flex items-center shadow-sm ${isSelected ? 'selected-option' : ''}`;
+            div.innerHTML = `
+                <div class="w-7 h-7 rounded-full flex items-center justify-center mr-3 text-xs font-bold ${isSelected ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600'}">
+                    ${opt.id}
+                </div>
+                <span class="text-sm">${opt.text}</span>
+            `;
+            div.onclick = () => { 
+                userAnswers[currentQuestionIndex] = opt.id; 
+                renderQuestion(); 
+            };
+            container.appendChild(div);
+        });
+
+        document.getElementById('prev-btn').disabled = currentQuestionIndex === 0;
+        document.getElementById('prev-btn').style.opacity = currentQuestionIndex === 0 ? '0.5' : '1';
+        document.getElementById('next-btn').innerText = currentQuestionIndex === questions.length - 1 ? "SELESAI" : "LANJUT";
+    }
+
+    function handleNext() {
+        if (currentQuestionIndex < questions.length - 1) {
+            currentQuestionIndex++;
+            renderQuestion();
+        } else {
+            document.getElementById('confirm-modal').style.display = 'flex';
+        }
+    }
+
+    function prevQuestion() {
+        if (currentQuestionIndex > 0) {
+            currentQuestionIndex--;
+            renderQuestion();
+        }
+    }
+
+    function hideConfirm() { 
+        document.getElementById('confirm-modal').style.display = 'none'; 
+    }
+
+    async function finishExam() {
+        hideConfirm();
+        clearInterval(timerInterval);
+        document.getElementById('loading-overlay').style.display = 'flex';
+
+        let correct = 0;
+        questions.forEach((q, i) => { if (userAnswers[i] === q.correct) correct++; });
+        const score = Math.round((correct / questions.length) * 100);
+
+        const payload = new URLSearchParams();
+        payload.append('timestamp', new Date().toLocaleString());
+        payload.append('nama', userData.name);
+        payload.append('absen', userData.absen);
+        payload.append('skor', score);
+        payload.append('durasi', document.getElementById('timer').innerText);
+
+        try {
+            await fetch(scriptURL, { method: 'POST', mode: 'no-cors', body: payload });
+            showResult(score, correct);
+        } catch (e) {
+            showResult(score, correct);
+        } finally {
+            document.getElementById('loading-overlay').style.display = 'none';
+        }
+    }
+
+    function showResult(score, correct) {
+        document.getElementById('exam-screen').innerHTML = `
+            <div class="flex flex-col items-center justify-center text-center h-full py-6">
+                <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
+                    <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                </div>
+                <h1 class="text-xl font-black mb-1">UJIAN SELESAI</h1>
+                <p class="text-xs text-gray-500 mb-6">${userData.name} - Absen ${userData.absen}</p>
+                
+                <div class="text-6xl font-black text-blue-600 mb-6">${score}</div>
+
+                <div class="grid grid-cols-2 gap-3 w-full mb-6">
+                    <div class="bg-gray-50 p-3 rounded-xl border border-gray-100">
+                        <div class="text-[10px] text-gray-400">Benar</div>
+                        <div class="text-lg font-bold text-green-600">${correct}</div>
+                    </div>
+                    <div class="bg-gray-50 p-3 rounded-xl border border-gray-100">
+                        <div class="text-[10px] text-gray-400">Salah</div>
+                        <div class="text-lg font-bold text-red-500">${questions.length - correct}</div>
+                    </div>
+                </div>
+
+                <button onclick="location.reload()" class="btn-nav w-full py-3 uppercase">Kembali</button>
+            </div>
+        `;
+    }
+</script>
+</body>
+</html>
